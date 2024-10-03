@@ -1,16 +1,4 @@
-#    This file is part of the ChannelAutoForwarder distribution (https://github.com/xditya/ChannelAutoForwarder).
-#    Copyright (c) 2021-2022 Aditya
-#
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU General Public License as published by
-#    the Free Software Foundation, version 3.
-#
-#    This program is distributed in the hope that it will be useful, but
-#    WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-#    General Public License for more details.
-#
-#    License can be found in < https://github.com/xditya/ChannelAutoForwarder/blob/main/License> .
+# https://github.com/xditya/ChannelAutoForwarder).
 
 import logging
 from telethon import TelegramClient, events, Button
@@ -21,15 +9,21 @@ logging.basicConfig(
 )
 log = logging.getLogger("ChannelAutoPost")
 
+#########################################################################################################################################
 # start the bot
+#########################################################################################################################################
 log.info("Starting...")
+
 try:
     apiid = config("APP_ID", cast=int)
     apihash = config("API_HASH")
     bottoken = config("BOT_TOKEN")
+
     frm = config("FROM_CHANNEL", cast=lambda x: [int(_) for _ in x.split(" ")])
-    tochnls = config("TO_CHANNEL", cast=lambda x: [int(_) for _ in x.split(" ")])
-    datgbot = TelegramClient(None, apiid, apihash).start(bot_token=bottoken)
+    tochnl = config("TO_CHANNEL", cast=lambda x: [int(_) for _ in x.split(" ")])
+
+    datgbot = TelegramClient("ChannelAutoForwarder", apiid, apihash).start(bot_token=bottoken)
+
 except Exception as exc:
     log.error("Environment vars are missing! Kindly recheck.")
     log.info("Bot is quiting...")
@@ -37,6 +31,7 @@ except Exception as exc:
     exit()
 
 
+#########################################################################################################################################
 @datgbot.on(events.NewMessage(pattern="/start"))
 async def _(event):
     await event.reply(
@@ -49,6 +44,7 @@ async def _(event):
     )
 
 
+#########################################################################################################################################
 @datgbot.on(events.NewMessage(pattern="/help"))
 async def helpp(event):
     await event.reply(
@@ -56,9 +52,10 @@ async def helpp(event):
     )
 
 
+#########################################################################################################################################
 @datgbot.on(events.NewMessage(incoming=True, chats=frm))
 async def _(event):
-    for tochnl in tochnls:
+    for tochnl in tochnl:
         try:
             if event.poll:
                 return
@@ -89,6 +86,8 @@ async def _(event):
             )
 
 
+#########################################################################################################################################
+
 log.info("Bot has started.")
-log.info("Do visit https://xditya.me !")
+
 datgbot.run_until_disconnected()
